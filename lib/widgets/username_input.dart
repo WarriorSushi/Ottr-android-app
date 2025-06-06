@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 
 // Project imports
-import 'package:ottr/utils/constants.dart';
 import 'package:ottr/utils/validators.dart';
 
 /// Reusable widget for username input with validation
@@ -59,7 +58,7 @@ class _UsernameInputState extends State<UsernameInput> {
                 ),
               ),
               enabled: !widget.isLoading,
-              validator: usernameValidator,
+              validator: Validators.validateUsername,
               textInputAction: TextInputAction.go,
               onFieldSubmitted: (_) => _handleSubmit(),
             ),
@@ -72,7 +71,7 @@ class _UsernameInputState extends State<UsernameInput> {
             child: ElevatedButton(
               onPressed: widget.isLoading ? null : _handleSubmit,
               style: ElevatedButton.styleFrom(
-                backgroundColor: primaryColor,
+                backgroundColor: Theme.of(context).primaryColor,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),

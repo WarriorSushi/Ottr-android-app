@@ -88,8 +88,6 @@ class MessageModel {
         return 'delivered';
       case MessageStatus.read:
         return 'read';
-      default:
-        return 'sent';
     }
   }
 
@@ -104,7 +102,8 @@ class MessageModel {
         return MessageStatus.delivered;
       case 'read':
         return MessageStatus.read;
-      default:
+      // If not matching any case, default to sent
+      case _:
         return MessageStatus.sent;
     }
   }
@@ -113,8 +112,6 @@ class MessageModel {
   static String _messageTypeToString(MessageType type) {
     switch (type) {
       case MessageType.text:
-        return 'text';
-      default:
         return 'text';
     }
   }

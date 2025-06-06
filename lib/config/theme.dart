@@ -14,17 +14,16 @@ const messageReceivedColor = Color(0xFFF5F5F5);
 // App theme using Material 3
 final ThemeData appTheme = ThemeData(
   useMaterial3: true,
-  colorScheme: ColorScheme(
+  colorScheme: const ColorScheme(
     primary: primaryColor,
     onPrimary: Colors.white,
     secondary: secondaryColor,
     onSecondary: Colors.white,
     error: errorColor,
     onError: Colors.white,
-    background: backgroundColor,
-    onBackground: Colors.black87,
-    surface: surfaceColor,
-    onSurface: Colors.black87,
+    surface: backgroundColor, // Replacing background with surface
+    onSurface: Colors.black87, // Replacing onBackground with onSurface
+    surfaceTint: surfaceColor,
     brightness: Brightness.light,
   ),
   scaffoldBackgroundColor: backgroundColor,
@@ -66,7 +65,7 @@ final ThemeData appTheme = ThemeData(
     ),
     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
   ),
-  cardTheme: CardTheme(
+  cardTheme: CardThemeData(
     color: Colors.white,
     elevation: 2,
     shape: RoundedRectangleBorder(

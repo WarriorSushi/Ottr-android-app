@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // Project imports
-import 'package:ottr/models/user_model.dart';
 import 'package:ottr/providers/providers.dart';
 import 'package:ottr/screens/chat_screen.dart';
 import 'package:ottr/utils/constants.dart';
@@ -89,7 +88,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: errorColor,
+        backgroundColor: Theme.of(context).colorScheme.error,
       ),
     );
   }
@@ -113,7 +112,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(APP_NAME),
+        title: const Text(appName),
         actions: [
           IconButton(
             icon: const Icon(Icons.exit_to_app),
@@ -247,9 +246,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             if (currentChat != null || otherUser != null) ...[
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: const CircleAvatar(
-                  backgroundColor: primaryColor,
-                  child: Icon(Icons.person, color: Colors.white),
+                leading: CircleAvatar(
+                  backgroundColor: Theme.of(context).primaryColor,
+                  child: const Icon(Icons.person, color: Colors.white),
                 ),
                 title: Text(
                   otherUser?.username ?? 'Connected User',
@@ -275,7 +274,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 icon: const Icon(Icons.close),
                 label: const Text('Disconnect'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
+                  backgroundColor: Theme.of(context).colorScheme.error,
                   foregroundColor: Colors.white,
                 ),
               ),
@@ -307,7 +306,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           children: [
             Row(
               children: [
-                const Icon(Icons.info_outline, color: primaryColor),
+                Icon(Icons.info_outline, color: Theme.of(context).primaryColor),
                 const SizedBox(width: 8),
                 const Expanded(
                   child: Text(

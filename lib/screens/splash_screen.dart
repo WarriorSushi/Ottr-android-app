@@ -31,7 +31,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
   /// Determine the next screen based on auth state
   Future<void> _navigateToNextScreen() async {
-    await Future.delayed(SPLASH_DURATION);
+    await Future.delayed(splashDuration);
     
     if (!mounted) return;
     
@@ -76,19 +76,19 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // App logo
-            const Icon(
+            Icon(
               Icons.chat_bubble_outline,
               size: 80,
-              color: primaryColor,
+              color: Theme.of(context).primaryColor,
             ),
             const SizedBox(height: 24),
             // App name
-            const Text(
-              APP_NAME,
+            Text(
+              appName,
               style: TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
-                color: primaryColor,
+                color: Theme.of(context).primaryColor,
               ),
             ),
             const SizedBox(height: 48),

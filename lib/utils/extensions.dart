@@ -74,7 +74,7 @@ extension StringExtensions on String {
   
   /// Convert to chat ID format (sorted usernames)
   String createChatId(String otherUsername) {
-    final List<String> usernames = [this.toLowerCase(), otherUsername.toLowerCase()];
+    final List<String> usernames = [toLowerCase(), otherUsername.toLowerCase()];
     usernames.sort(); // Sort alphabetically
     return usernames.join('_');
   }

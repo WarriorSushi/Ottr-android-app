@@ -19,8 +19,8 @@ class FirebaseConfig {
     } catch (e, stack) {
       // Even if Firebase fails, we still want to run the app
       // Log error locally in this case
-      print('Firebase initialization failed: $e');
-      print('Stack trace: $stack');
+      debugPrint('Firebase initialization failed: $e');
+      debugPrint('Stack trace: $stack');
     }
   }
   
@@ -54,9 +54,9 @@ class FirebaseConfig {
       );
     } else {
       // In debug mode, print to console
-      print('ERROR: $reason');
-      print('$error');
-      if (stack != null) print('$stack');
+      debugPrint('ERROR: $reason');
+      debugPrint('$error');
+      if (stack != null) debugPrint('$stack');
     }
   }
 }

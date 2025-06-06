@@ -11,7 +11,7 @@ import 'package:ottr/utils/constants.dart';
 /// Provider for current username
 final currentUsernameProvider = FutureProvider<String?>((ref) async {
   final prefs = await SharedPreferences.getInstance();
-  return prefs.getString(PREF_USERNAME);
+  return prefs.getString(prefUsername);
 });
 
 /// Provider for searching a user by username

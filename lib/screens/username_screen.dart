@@ -7,7 +7,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 // Project imports
 import 'package:ottr/providers/providers.dart';
 import 'package:ottr/screens/home_screen.dart';
-import 'package:ottr/utils/constants.dart';
 import 'package:ottr/utils/extensions.dart';
 import 'package:ottr/utils/validators.dart';
 import 'package:ottr/widgets/loading_button.dart';
@@ -61,7 +60,7 @@ class _UsernameScreenState extends ConsumerState<UsernameScreen> {
     Future.delayed(const Duration(milliseconds: 500), () {
       if (currentTimeout == _debounceTimeout && mounted) {
         // Check if username is valid before checking availability
-        if (usernameValidator(username) == null) {
+        if (Validators.validateUsername(username) == null) {
           ref.read(usernameStateProvider.notifier).checkUsername(username);
         }
       }
@@ -102,9 +101,13 @@ class _UsernameScreenState extends ConsumerState<UsernameScreen> {
       }
       
       // Update user profile with new username
-      await authService.updateUserProfile(
+      // Create or update user profile with the new username
+      await authService.createUserProfile(
         uid: currentUser.uid,
         username: username,
+        displayName: currentUser.displayName ?? '',
+        email: currentUser.email ?? '',
+        photoUrl: currentUser.photoURL ?? '',
       );
       
       if (!mounted) return;
@@ -165,7 +168,7 @@ class _UsernameScreenState extends ConsumerState<UsernameScreen> {
                 onFieldSubmitted: (_) => _saveUsername(),
                 validator: (value) {
                   // Basic validation
-                  final error = usernameValidator(value);
+                  final error = Validators.validateUsername(value);
                   if (error != null) {
                     return error;
                   }

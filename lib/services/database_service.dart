@@ -8,7 +8,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 // Project imports
 import 'package:ottr/models/chat_model.dart';
 import 'package:ottr/models/message_model.dart';
-import 'package:ottr/models/user_model.dart';
 import 'package:ottr/utils/constants.dart';
 
 /// Service responsible for database operations
@@ -33,7 +32,7 @@ class DatabaseService {
 
       // Check if chat already exists
       final chatDoc = await _firestore
-          .collection(CHATS_COLLECTION)
+          .collection(chatsCollection)
           .doc(chatId)
           .get();
 
@@ -63,7 +62,7 @@ class DatabaseService {
 
       // Save to Firestore
       await _firestore
-          .collection(CHATS_COLLECTION)
+          .collection(chatsCollection)
           .doc(chatId)
           .set(chatModel.toFirestore());
       
@@ -83,13 +82,13 @@ class DatabaseService {
     try {
       // Update in Firestore
       await _firestore
-          .collection(USERS_COLLECTION)
+          .collection(usersCollection)
           .doc(userId)
           .update({'currentChatId': chatId});
       
       // Save to shared preferences
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(PREF_CURRENT_CHAT_ID, chatId);
+      await prefs.setString(prefCurrentChatId, chatId);
     } catch (e, stackTrace) {
       debugPrint('Error updating current chat: $e');
       debugPrintStack(stackTrace: stackTrace);
@@ -100,7 +99,7 @@ class DatabaseService {
   Future<String?> getCurrentChatId() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      return prefs.getString(PREF_CURRENT_CHAT_ID);
+      return prefs.getString(prefCurrentChatId);
     } catch (e) {
       debugPrint('Error getting current chat ID: $e');
       return null;
@@ -118,9 +117,9 @@ class DatabaseService {
       
       // Create message
       final messageRef = _firestore
-          .collection(CHATS_COLLECTION)
+          .collection(chatsCollection)
           .doc(chatId)
-          .collection(MESSAGES_SUBCOLLECTION)
+          .collection(messagesSubcollection)
           .doc();
       
       final messageModel = MessageModel(
@@ -136,7 +135,7 @@ class DatabaseService {
       
       // Update chat with last message info
       await _firestore
-          .collection(CHATS_COLLECTION)
+          .collection(chatsCollection)
           .doc(chatId)
           .update({
             'lastMessage': text,
@@ -162,7 +161,7 @@ class DatabaseService {
   Future<ChatModel?> getChatById(String chatId) async {
     try {
       final chatDoc = await _firestore
-          .collection(CHATS_COLLECTION)
+          .collection(chatsCollection)
           .doc(chatId)
           .get();
       
@@ -177,11 +176,25 @@ class DatabaseService {
       return null;
     }
   }
+  
+  /// Stream chat by ID - get real-time updates
+  Stream<ChatModel?> streamChatById(String chatId) {
+    return _firestore
+        .collection(chatsCollection)
+        .doc(chatId)
+        .snapshots()
+        .map((snapshot) {
+          if (snapshot.exists) {
+            return ChatModel.fromFirestore(snapshot);
+          }
+          return null;
+        });
+  }
 
   /// Get all chats for a user
   Stream<List<ChatModel>> getUserChats(String username) {
     return _firestore
-        .collection(CHATS_COLLECTION)
+        .collection(chatsCollection)
         .where('participants', arrayContains: username.toLowerCase())
         .orderBy('lastMessageTime', descending: true)
         .snapshots()
@@ -195,11 +208,11 @@ class DatabaseService {
   /// Get messages for a chat
   Stream<List<MessageModel>> getChatMessages(String chatId) {
     return _firestore
-        .collection(CHATS_COLLECTION)
+        .collection(chatsCollection)
         .doc(chatId)
-        .collection(MESSAGES_SUBCOLLECTION)
+        .collection(messagesSubcollection)
         .orderBy('timestamp', descending: true)
-        .limit(MAX_MESSAGES_PER_FETCH)
+        .limit(maxMessagesPerFetch)
         .snapshots()
         .map((snapshot) {
           return snapshot.docs
@@ -213,19 +226,19 @@ class DatabaseService {
     try {
       // Update current chat ID to null
       await _firestore
-          .collection(USERS_COLLECTION)
+          .collection(usersCollection)
           .doc(userId)
           .update({'currentChatId': null});
       
       // Set chat as inactive
       await _firestore
-          .collection(CHATS_COLLECTION)
+          .collection(chatsCollection)
           .doc(chatId)
           .update({'isActive': false});
       
       // Clear from shared preferences
       final prefs = await SharedPreferences.getInstance();
-      await prefs.remove(PREF_CURRENT_CHAT_ID);
+      await prefs.remove(prefCurrentChatId);
     } catch (e, stackTrace) {
       debugPrint('Error disconnecting from chat: $e');
       debugPrintStack(stackTrace: stackTrace);
@@ -243,12 +256,12 @@ class DatabaseService {
         
         if (index == 0) {
           await _firestore
-              .collection(CHATS_COLLECTION)
+              .collection(chatsCollection)
               .doc(chatId)
               .update({'user1Typing': isTyping});
         } else if (index == 1) {
           await _firestore
-              .collection(CHATS_COLLECTION)
+              .collection(chatsCollection)
               .doc(chatId)
               .update({'user2Typing': isTyping});
         }

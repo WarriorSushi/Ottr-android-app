@@ -75,21 +75,21 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
               const Spacer(),
               
               // App logo and title
-              const Center(
+              Center(
                 child: Icon(
                   Icons.chat_bubble_outline,
                   size: 80,
-                  color: primaryColor,
+                  color: Theme.of(context).primaryColor,
                 ),
               ),
               const SizedBox(height: 24),
-              const Center(
+              Center(
                 child: Text(
-                  APP_NAME,
+                  appName,
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
-                    color: primaryColor,
+                    color: Theme.of(context).primaryColor,
                   ),
                 ),
               ),

@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 
 // Project imports
 import 'package:ottr/models/message_model.dart';
-import 'package:ottr/utils/constants.dart';
 
 /// Widget to display a message in a chat bubble
 class MessageBubble extends StatelessWidget {
@@ -28,7 +27,9 @@ class MessageBubble extends StatelessWidget {
             maxWidth: MediaQuery.of(context).size.width * 0.75,
           ),
           decoration: BoxDecoration(
-            color: isCurrentUser ? messageSentColor : messageReceivedColor,
+            color: isCurrentUser 
+                ? const Color(0xFFE3F2FD) // messageSentColor
+                : Theme.of(context).colorScheme.surface, // messageReceivedColor
             borderRadius: BorderRadius.circular(16.0),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
@@ -90,8 +91,6 @@ class MessageBubble extends StatelessWidget {
           size: 12.0,
           color: Colors.blue,
         );
-      default:
-        return const SizedBox.shrink();
     }
   }
 

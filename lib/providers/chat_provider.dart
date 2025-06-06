@@ -35,13 +35,7 @@ final currentChatProvider = StreamProvider<ChatModel?>((ref) {
     data: (chatId) {
       if (chatId == null) return Stream.value(null);
       
-      return dbService
-          .getChatById(chatId)
-          .then((chat) => Stream.value(chat))
-          .catchError((e) {
-            debugPrint('Error getting current chat: $e');
-            return Stream.value(null);
-          });
+      return dbService.streamChatById(chatId);
     },
     loading: () => Stream.value(null),
     error: (_, __) => Stream.value(null),
@@ -166,16 +160,7 @@ class ChatConnectionNotifier extends StateNotifier<ChatConnectionState> {
     
     final dbService = _ref.read(databaseServiceProvider);
     _chatSubscription = dbService
-        .getChatById(chatId)
-        .then((chat) {
-          if (chat != null) {
-            return Stream.value(chat);
-          } else {
-            return Stream<ChatModel?>.empty();
-          }
-        })
-        .asStream()
-        .expand((event) => event)
+        .streamChatById(chatId)
         .listen(
           (chat) {
             state = state.copyWith(currentChat: chat);

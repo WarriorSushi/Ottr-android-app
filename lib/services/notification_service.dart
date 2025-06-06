@@ -28,7 +28,7 @@ class NotificationService {
       debugPrint('Notification permission status: ${settings.authorizationStatus}');
       
       // Initialize local notifications
-      const initializationSettingsAndroid = AndroidInitializationSettings('@drawable/ic_notification');
+      const initializationSettingsAndroid = AndroidInitializationSettings('ic_notification');
       const initializationSettings = InitializationSettings(
         android: initializationSettingsAndroid,
       );
@@ -91,33 +91,41 @@ class NotificationService {
     
     // Show local notification
     if (notification != null && android != null) {
+      final androidDetails = AndroidNotificationDetails(
+        'ottr_messages',
+        'Ottr Messages',
+        icon: android.smallIcon,
+        importance: Importance.high,
+        priority: Priority.high,
+      );
+      
+      final notificationDetails = NotificationDetails(android: androidDetails);
+      
       await _flutterLocalNotifications.show(
         notification.hashCode,
         notification.title,
         // Don't show message content for privacy
         'New message received',
-        NotificationDetails(
-          android: AndroidNotificationDetails(
-            'ottr_messages',
-            'Ottr Messages',
-            icon: android.smallIcon,
-            importance: Importance.high,
-            priority: Priority.high,
-          ),
-        ),
+        notificationDetails,
         payload: message.data['chatId'],
       );
     }
   }
 
   /// Handle notification tap
-  void _handleNotificationTap(NotificationResponse response) {
+  void _handleNotificationTap(NotificationResponse notificationResponse) {
     // Handle navigation based on payload (chatId)
-    final chatId = response.payload;
+    final chatId = notificationResponse.payload;
     if (chatId != null && chatId.isNotEmpty) {
       // Navigation will be handled by the ChatProvider
       debugPrint('Notification tapped with chatId: $chatId');
     }
+  }
+  
+  /// Clean up resources when service is no longer needed
+  void dispose() {
+    // Cancel any active subscriptions or listeners if needed
+    debugPrint('NotificationService disposed');
   }
 }
 

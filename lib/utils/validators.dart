@@ -10,15 +10,15 @@ class Validators {
       return 'Username cannot be empty';
     }
     
-    if (username.length < MIN_USERNAME_LENGTH) {
-      return 'Username must be at least $MIN_USERNAME_LENGTH characters';
+    if (username.length < minUsernameLength) {
+      return 'Username must be at least $minUsernameLength characters';
     }
     
-    if (username.length > MAX_USERNAME_LENGTH) {
-      return 'Username cannot exceed $MAX_USERNAME_LENGTH characters';
+    if (username.length > maxUsernameLength) {
+      return 'Username cannot exceed $maxUsernameLength characters';
     }
     
-    final RegExp usernameRegex = RegExp(USERNAME_PATTERN);
+    final RegExp usernameRegex = RegExp(usernamePattern);
     if (!usernameRegex.hasMatch(username)) {
       return 'Username can only contain letters, numbers, and underscores';
     }
@@ -33,8 +33,8 @@ class Validators {
       return 'Message cannot be empty';
     }
     
-    if (message.length > MAX_MESSAGE_LENGTH) {
-      return 'Message cannot exceed $MAX_MESSAGE_LENGTH characters';
+    if (message.length > maxMessageLength) {
+      return 'Message cannot exceed $maxMessageLength characters';
     }
     
     return null;

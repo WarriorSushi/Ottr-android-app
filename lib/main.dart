@@ -10,7 +10,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 // Project imports
 import 'package:ottr/app.dart';
 import 'package:ottr/config/firebase_config.dart';
-import 'package:ottr/services/notification_service.dart';
 
 void main() async {
   // Ensure Flutter binding is initialized
@@ -22,9 +21,7 @@ void main() async {
       // Initialize Firebase with our comprehensive config
       await FirebaseConfig.initializeApp();
       
-      // Initialize notification services
-      final notificationService = NotificationService();
-      await notificationService.init();
+      // App will initialize notification services via Riverpod provider when needed
       
       // Run the app wrapped in a ProviderScope for Riverpod
       runApp(const ProviderScope(child: OttrApp()));

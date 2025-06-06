@@ -59,7 +59,7 @@ class AuthService {
     try {
       final String lowercaseUsername = username.toLowerCase();
       final usersSnapshot = await _firestore
-          .collection(USERS_COLLECTION)
+          .collection(usersCollection)
           .where('username', isEqualTo: lowercaseUsername)
           .get();
           
@@ -98,14 +98,14 @@ class AuthService {
       
       // Save to Firestore
       await _firestore
-          .collection(USERS_COLLECTION)
+          .collection(usersCollection)
           .doc(uid)
           .set(userModel.toFirestore());
           
       // Save username to shared preferences
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(PREF_USER_ID, uid);
-      await prefs.setString(PREF_USERNAME, lowercaseUsername);
+      await prefs.setString(prefUserId, uid);
+      await prefs.setString(prefUsername, lowercaseUsername);
       
       return userModel;
     } catch (e, stackTrace) {
@@ -119,7 +119,7 @@ class AuthService {
   Future<UserModel?> getUserById(String uid) async {
     try {
       final docSnapshot = await _firestore
-          .collection(USERS_COLLECTION)
+          .collection(usersCollection)
           .doc(uid)
           .get();
           
@@ -141,7 +141,7 @@ class AuthService {
       final lowercaseUsername = username.toLowerCase();
       
       final querySnapshot = await _firestore
-          .collection(USERS_COLLECTION)
+          .collection(usersCollection)
           .where('username', isEqualTo: lowercaseUsername)
           .limit(1)
           .get();
@@ -162,7 +162,7 @@ class AuthService {
   Future<void> updateFcmToken(String uid, String token) async {
     try {
       await _firestore
-          .collection(USERS_COLLECTION)
+          .collection(usersCollection)
           .doc(uid)
           .update({'fcmToken': token});
     } catch (e, stackTrace) {
@@ -175,7 +175,7 @@ class AuthService {
   Future<void> updateOnlineStatus(String uid, bool isOnline) async {
     try {
       await _firestore
-          .collection(USERS_COLLECTION)
+          .collection(usersCollection)
           .doc(uid)
           .update({
             'isOnline': isOnline,
@@ -217,7 +217,7 @@ class AuthService {
       if (currentUid != null) {
         // Delete user data from Firestore
         await _firestore
-            .collection(USERS_COLLECTION)
+            .collection(usersCollection)
             .doc(currentUid)
             .delete();
       }

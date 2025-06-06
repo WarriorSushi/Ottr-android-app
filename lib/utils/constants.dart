@@ -1,29 +1,42 @@
+library ottr.constants;
+
 /// Application constants
+import 'package:flutter/material.dart';
 
 // App information
-const String APP_NAME = 'Ottr';
-const String APP_VERSION = '1.0.0';
+const String appName = 'Ottr';
+const String appVersion = '1.0.0';
 
 // Firebase collection names
-const String USERS_COLLECTION = 'users';
-const String CHATS_COLLECTION = 'chats';
-const String MESSAGES_SUBCOLLECTION = 'messages';
+const String usersCollection = 'users';
+const String chatsCollection = 'chats';
+const String messagesSubcollection = 'messages';
 
 // Shared preferences keys
-const String PREF_USER_ID = 'user_id';
-const String PREF_USERNAME = 'username';
-const String PREF_CURRENT_CHAT_ID = 'current_chat_id';
+const String prefUserId = 'user_id';
+const String prefUsername = 'username';
+const String prefCurrentChatId = 'current_chat_id';
 
 // Username constraints
-const int MIN_USERNAME_LENGTH = 3;
-const int MAX_USERNAME_LENGTH = 20;
-const String USERNAME_PATTERN = r'^[a-zA-Z0-9_]+$';
+const int minUsernameLength = 3;
+const int maxUsernameLength = 20;
+const String usernamePattern = r'^[a-zA-Z0-9_]+$';
 
 // Chat constraints
-const int MAX_MESSAGE_LENGTH = 1000;
-const int MAX_MESSAGES_PER_FETCH = 50;
+const int maxMessageLength = 500;
+const int maxMessagesPerFetch = 50;
 
 // Animation durations
-const Duration SPLASH_DURATION = Duration(seconds: 2);
-const Duration SHORT_ANIMATION_DURATION = Duration(milliseconds: 200);
-const Duration DEFAULT_ANIMATION_DURATION = Duration(milliseconds: 300);
+const Duration splashDuration = Duration(seconds: 2);
+const Duration shortAnimationDuration = Duration(milliseconds: 150);
+const Duration defaultAnimationDuration = Duration(milliseconds: 300);
+
+// Colors - as required in design rules
+const Color primaryColor = Color(0xFF2196F3);
+const Color primaryVariant = Color(0xFF1976D2);
+const Color secondaryColor = Color(0xFF4CAF50);
+const Color errorColor = Color(0xFFF44336);
+const Color backgroundColor = Color(0xFFFFFFFF);
+const Color surfaceColor = Color(0xFFF5F5F5);
+const Color messageSentColor = Color(0xFFE3F2FD);
+const Color messageReceivedColor = Color(0xFFF5F5F5);

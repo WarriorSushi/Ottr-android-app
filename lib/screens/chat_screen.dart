@@ -9,10 +9,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // Project imports
 import 'package:ottr/models/chat_model.dart';
-import 'package:ottr/models/message_model.dart';
 import 'package:ottr/providers/providers.dart';
-import 'package:ottr/utils/constants.dart';
-import 'package:ottr/utils/extensions.dart';
+
 import 'package:ottr/widgets/message_bubble.dart';
 
 /// Chat screen for messaging with another user
@@ -91,10 +89,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     try {
       await ref.read(chatConnectionProvider.notifier).sendMessage(text);
     } catch (e) {
+      if (!mounted) return;
+      
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to send message: ${e.toString()}'),
-          backgroundColor: errorColor,
+          backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
     }
@@ -164,23 +164,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   /// Build message list
   Widget _buildMessageList(String chatId, String? currentUsername) {
-    return StreamBuilder<List<MessageModel>>(
-      stream: ref.watch(chatMessagesProvider(chatId)),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        }
-
-        final messages = snapshot.data ?? [];
-        
+    final messagesAsyncValue = ref.watch(chatMessagesProvider(chatId));
+    
+    return messagesAsyncValue.when(
+      data: (messages) {
         if (messages.isEmpty) {
-          return const Center(child: Text('No messages yet. Start the conversation!'));
+          return const Center(
+            child: Text('No messages yet. Send one to start chatting!'),
+          );
         }
-
         return ListView.builder(
           controller: _scrollController,
           reverse: true,  // Display latest messages at the bottom
@@ -198,6 +190,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           },
         );
       },
+      error: (error, stackTrace) => Center(child: Text('Error: $error')),
+      loading: () => const Center(child: CircularProgressIndicator()),
     );
   }
 
@@ -209,7 +203,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         color: Theme.of(context).cardColor,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withAlpha(13), // 0.05 * 255 = ~13
             blurRadius: 3,
             offset: const Offset(0, -1),
           ),
@@ -233,7 +227,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     borderSide: BorderSide.none,
                   ),
                   filled: true,
-                  fillColor: surfaceColor,
+                  fillColor: Theme.of(context).colorScheme.surface,
                 ),
                 maxLines: null,
                 textCapitalization: TextCapitalization.sentences,
@@ -245,9 +239,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             
             // Send button
             Container(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: primaryColor,
+                color: Theme.of(context).primaryColor,
               ),
               child: IconButton(
                 icon: const Icon(Icons.send, color: Colors.white),
