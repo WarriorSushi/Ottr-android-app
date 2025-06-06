@@ -1,0 +1,381 @@
+# Windsurf Rules for Ottr Development
+
+## Project Context
+You are building Ottr, a minimalist one-to-one messaging app for Android using Flutter. Users connect via unique usernames. Focus on simplicity, reliability, and clean code.
+
+## Core Principles
+
+### 1. SIMPLICITY FIRST
+- MVP features only - no feature creep
+- One way to do things, not multiple options
+- Clear, obvious UI patterns
+- Minimal dependencies
+
+### 2. ANDROID FIRST
+- Target Android 5.0+ (API 21)
+- Material Design 3 guidelines
+- Test on multiple screen sizes
+- Ignore iOS-specific code for now
+
+### 3. CONSISTENT NAMING
+- **Files**: snake_case (e.g., `auth_screen.dart`)
+- **Classes**: PascalCase (e.g., `AuthScreen`)
+- **Variables**: camelCase (e.g., `userName`)
+- **Constants**: SCREAMING_SNAKE_CASE (e.g., `MAX_USERNAME_LENGTH`)
+- **Providers**: camelCase with Provider suffix (e.g., `authStateProvider`)
+
+### 4. ERROR HANDLING
+- Every async operation wrapped in try-catch
+- User-friendly error messages
+- Never expose technical errors to users
+- Log errors for debugging
+
+### 5. STATE MANAGEMENT
+- Use Riverpod 2.0 exclusively
+- No setState() in StatefulWidgets
+- Providers for all shared state
+- Clear provider organization
+
+## Code Structure Rules
+
+### File Organization
+```
+lib/
+├── main.dart                    # App entry point
+├── app.dart                     # MaterialApp widget
+├── screens/                     # All screen widgets
+│   ├── splash_screen.dart
+│   ├── auth_screen.dart
+│   ├── username_screen.dart
+│   ├── home_screen.dart
+│   └── chat_screen.dart
+├── widgets/                     # Reusable widgets
+│   ├── message_bubble.dart
+│   ├── loading_button.dart
+│   └── username_input.dart
+├── services/                    # Business logic
+│   ├── auth_service.dart
+│   ├── database_service.dart
+│   └── notification_service.dart
+├── models/                      # Data models
+│   ├── user_model.dart
+│   ├── chat_model.dart
+│   └── message_model.dart
+├── providers/                   # Riverpod providers
+│   ├── auth_provider.dart
+│   ├── user_provider.dart
+│   ├── chat_provider.dart
+│   └── providers.dart          # Export file
+├── utils/                       # Utilities
+│   ├── constants.dart
+│   ├── validators.dart
+│   └── extensions.dart
+└── config/                      # Configuration
+    ├── theme.dart
+    └── routes.dart
+```
+
+### Import Order
+Always organize imports in this order:
+```dart
+// Dart imports
+import 'dart:async';
+
+// Flutter imports
+import 'package:flutter/material.dart';
+
+// Package imports
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+// Project imports
+import 'package:ottr/models/user_model.dart';
+import 'package:ottr/services/auth_service.dart';
+```
+
+## Firebase Configuration Rules
+
+### 1. Initialization
+- Initialize Firebase in main() before runApp()
+- Handle initialization errors gracefully
+- Show error screen if Firebase fails
+
+### 2. Authentication
+- Only Google Sign-In for MVP
+- Store user profile immediately after first sign-in
+- Update FCM token on every app launch
+- Handle auth state changes properly
+
+### 3. Firestore Structure
+- Use consistent document IDs
+- Chat ID = sorted usernames (e.g., "alice_bob" not "bob_alice")
+- Timestamp all documents
+- Index username field for queries
+
+### 4. FCM Setup
+```
+Priority: CRITICAL
+- Test notifications immediately after setup
+- Handle both foreground and background
+- Don't show message content in notifications
+- Update token in user profile
+- Test on real device, not emulator
+```
+
+## UI/UX Implementation Rules
+
+### 1. Material Design
+- Use Material 3 components
+- Follow Material spacing (8dp grid)
+- Consistent elevation shadows
+- Proper touch targets (48dp minimum)
+
+### 2. Colors
+```dart
+// Use these exact colors
+const primaryColor = Color(0xFF2196F3);
+const primaryVariant = Color(0xFF1976D2);
+const secondaryColor = Color(0xFF4CAF50);
+const errorColor = Color(0xFFF44336);
+const backgroundColor = Color(0xFFFFFFFF);
+const surfaceColor = Color(0xFFF5F5F5);
+const messageSentColor = Color(0xFFE3F2FD);
+const messageReceivedColor = Color(0xFFF5F5F5);
+```
+
+### 3. Text Styles
+- Use Theme.of(context).textTheme
+- Don't hardcode text styles
+- Consistent sizing across app
+- Roboto font (system default)
+
+### 4. Animations
+- All animations 300ms or less
+- Use curves: easeInOut for most
+- No jarring transitions
+- Subtle scale effects on tap
+
+### 5. Loading States
+- Show loading indicator for all async operations
+- Disable buttons during loading
+- Show skeleton screens for lists
+- Never leave user wondering
+
+## Screen Implementation Details
+
+### Splash Screen
+- Show for maximum 2 seconds
+- Check auth state
+- Smooth transition to next screen
+- Handle deep links here
+
+### Auth Screen
+- Google Sign-In button follows Material spec
+- Show loading during sign-in
+- Clear error messages
+- Link to privacy policy
+
+### Username Screen
+- Real-time availability checking
+- Debounce API calls (500ms)
+- Show validation inline
+- Clear username rules
+- Disable continue until valid
+
+### Home Screen
+- Show current connection prominently
+- Easy username input
+- Recent connections list
+- Pull to refresh
+- Settings in app bar
+
+### Chat Screen
+- Reverse list for messages
+- Auto-scroll on new message
+- Show delivery status
+- Handle keyboard properly
+- Swipe to go back
+
+## Provider Patterns
+
+### Auth Provider
+```dart
+// Pattern for auth state
+final authStateProvider = StreamProvider<User?>((ref) {
+  return FirebaseAuth.instance.authStateChanges();
+});
+
+final currentUserProvider = Provider<UserModel?>((ref) {
+  final authState = ref.watch(authStateProvider);
+  // Return user model based on auth state
+});
+```
+
+### Chat Provider
+```dart
+// Pattern for chat messages
+final chatMessagesProvider = StreamProvider.family<List<MessageModel>, String>((ref, chatId) {
+  // Return stream of messages for chatId
+});
+```
+
+### Error Handling in Providers
+- Use AsyncValue for error states
+- Provide meaningful error messages
+- Allow retry functionality
+- Log errors for debugging
+
+## Service Implementation Rules
+
+### Auth Service
+- Singleton pattern
+- Handle all Firebase Auth operations
+- Clear method names (signInWithGoogle, signOut)
+- Return user model, not Firebase User
+
+### Database Service
+- All Firestore operations here
+- Use transactions for consistency
+- Implement proper pagination
+- Cache frequently accessed data
+
+### Notification Service
+- Initialize early in app lifecycle
+- Handle token refresh
+- Implement notification channels
+- Test on various Android versions
+
+## Testing Requirements
+
+### Unit Tests
+- Test username validation
+- Test chat ID generation
+- Test message ordering
+- Test error scenarios
+
+### Widget Tests
+- Test each screen widget
+- Test loading states
+- Test error states
+- Test navigation
+
+### Integration Tests
+- Complete user flow
+- Sign in → Username → Connect → Chat
+- Message send/receive
+- Notification delivery
+
+## Common Pitfalls to Avoid
+
+### 1. State Management
+- ❌ Don't use setState in widgets
+- ❌ Don't create providers inside widgets
+- ❌ Don't forget to dispose streams
+- ✅ Use ref.watch() for reactive updates
+- ✅ Use ref.read() for one-time reads
+
+### 2. Firebase
+- ❌ Don't hardcode project config
+- ❌ Don't skip error handling
+- ❌ Don't forget indexes
+- ✅ Use security rules properly
+- ✅ Test FCM on real devices
+
+### 3. UI/UX
+- ❌ Don't ignore loading states
+- ❌ Don't show technical errors
+- ❌ Don't forget empty states
+- ✅ Always show user feedback
+- ✅ Handle all edge cases
+
+### 4. Performance
+- ❌ Don't rebuild entire lists
+- ❌ Don't load all messages at once
+- ❌ Don't make unnecessary API calls
+- ✅ Implement pagination
+- ✅ Cache data appropriately
+
+## Code Quality Standards
+
+### 1. Comments
+- Comment complex logic only
+- Use /// for documentation
+- Keep comments up to date
+- Remove TODO comments before commit
+
+### 2. Functions
+- Single responsibility principle
+- Maximum 50 lines per function
+- Clear, descriptive names
+- Async functions return Future
+
+### 3. Error Messages
+```dart
+// Good
+"Username already taken. Please try another."
+
+// Bad
+"Firebase error: Document exists"
+```
+
+### 4. Constants
+Define all constants in constants.dart:
+```dart
+const int MAX_USERNAME_LENGTH = 20;
+const int MIN_USERNAME_LENGTH = 3;
+const Duration CONNECTION_TIMEOUT = Duration(seconds: 30);
+const String USERNAME_PATTERN = r'^[a-z0-9_]+$';
+```
+
+## Debugging Guidelines
+
+### 1. Logging
+- Use debugPrint() not print()
+- Log important state changes
+- Remove logs before release
+- Use Firebase Crashlytics for production
+
+### 2. Error Tracking
+- Catch and log all errors
+- Include context in error logs
+- Use error boundaries
+- Test error scenarios
+
+## Build & Release Rules
+
+### 1. Version Management
+- Use semantic versioning
+- Update version in pubspec.yaml
+- Tag releases in git
+- Keep changelog updated
+
+### 2. Build Process
+```bash
+# Always run before building
+flutter clean
+flutter pub get
+
+# Build release APK
+flutter build apk --release
+
+# Build app bundle for Play Store
+flutter build appbundle --release
+```
+
+### 3. Testing Checklist
+- [ ] Test on Android 5.0 device
+- [ ] Test on latest Android
+- [ ] Test on small screen (5")
+- [ ] Test on tablet
+- [ ] Test with slow network
+- [ ] Test offline scenarios
+
+## Final Reminders
+
+1. **Keep it simple** - MVP first, features later
+2. **Test everything** - Especially FCM
+3. **Handle errors** - User should never see crashes
+4. **Be consistent** - Follow these patterns everywhere
+5. **Ask when unsure** - Better to clarify than assume
+
+Remember: We're building a production app. Quality over quantity. Make it work, make it right, then make it fast.

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Colors for Ottr app -->
+    <color name="primaryColor">#2196F3</color>
+    <color name="primaryVariant">#1976D2</color>
+    <color name="secondaryColor">#4CAF50</color>
+    <color name="errorColor">#F44336</color>
+    <color name="backgroundColor">#FFFFFF</color>
+    <color name="surfaceColor">#F5F5F5</color>
+    <color name="messageSentColor">#E3F2FD</color>
+    <color name="messageReceivedColor">#F5F5F5</color>
+</resources>
