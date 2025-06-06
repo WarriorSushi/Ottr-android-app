@@ -21,13 +21,15 @@ if (signingPropsFile.exists()) {
 }
 
 android {
-    namespace = "com.example.ottr"
+    namespace = "ottr.android.app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "27.0.12077973"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        // Enable core library desugaring for flutter_local_notifications
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -35,7 +37,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.ottr"
+        applicationId = "ottr.android.app"
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 21 // Set minimum SDK to 21 as per requirements
         targetSdk = flutter.targetSdkVersion
@@ -86,11 +88,14 @@ flutter {
 }
 
 dependencies {
+    // Core library desugaring for Java 8+ APIs on older Android
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+    
     // Multidex support for older Android versions
     implementation("androidx.multidex:multidex:2.0.1")
     
     // Firebase dependencies
-    implementation(platform("com.google.firebase:firebase-bom:33.15.0"))
+    implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
     // Firebase Analytics for tracking usage
     implementation("com.google.firebase:firebase-analytics-ktx")
     // Firebase Auth for Google Sign-In
