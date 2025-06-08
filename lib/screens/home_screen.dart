@@ -143,50 +143,46 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     }
   }
 
-  @override
-  void dispose() {
-    _debounceTimer?.cancel();
-    _usernameController.removeListener(_updateUsernameState);
-    _usernameController.dispose();
-    _audioPlayer.dispose();
-    super.dispose();
-  }
-  
   /// Listen for incoming connection requests
   void _listenForIncomingRequests() {
     // Get the current user profile - use read instead of watch in methods
     final userProfileAsync = ref.read(userProfileProvider);
     
-    userProfileAsync.whenData((userProfile) {
-      if (userProfile != null && mounted) {
-        debugPrint('Setting up request listener for user: ${userProfile.username}');
-        
-        // Start listening for incoming requests
-        final dbService = ref.read(databaseServiceProvider);
-        _requestSubscription = dbService.streamIncomingRequests(userProfile.username).listen(
-          (requests) {
-            if (!mounted) return;
-            
-            debugPrint('Received ${requests.length} incoming requests');
-            
-            setState(() {
-              _incomingRequest = requests.isNotEmpty ? requests.first : null;
-              if (_incomingRequest != null) {
-                debugPrint('Showing incoming request from: ${_incomingRequest!['fromUsername']}');
-              }
-            });
-          },
-          onError: (error) {
-            debugPrint('Error in request stream: $error');
-          },
-        );
-      } else {
-        debugPrint('User profile is null or widget not mounted');
-      }
-    }, onError: (error, stackTrace) {
-      debugPrint('Error getting user profile: $error');
-      debugPrintStack(stackTrace: stackTrace);
-    });
+    // Handle all AsyncValue states properly
+    userProfileAsync.when(
+      data: (userProfile) {
+        if (userProfile != null && mounted) {
+          debugPrint('Setting up request listener for user: ${userProfile.username}');
+          
+          // Start listening for incoming requests
+          final dbService = ref.read(databaseServiceProvider);
+          _requestSubscription = dbService.streamIncomingRequests(userProfile.username).listen(
+            (requests) {
+              if (!mounted) return;
+              
+              debugPrint('Received ${requests.length} incoming requests');
+              
+              setState(() {
+                _incomingRequest = requests.isNotEmpty ? requests.first : null;
+                if (_incomingRequest != null) {
+                  debugPrint('Showing incoming request from: ${_incomingRequest!["fromUsername"]}');
+                }
+              });
+            },
+            onError: (error) {
+              debugPrint('Error in request stream: $error');
+            },
+          );
+        } else {
+          debugPrint('User profile is null or widget not mounted');
+        }
+      },
+      loading: () => debugPrint('Loading user profile...'),
+      error: (error, stackTrace) {
+        debugPrint('Error getting user profile: $error');
+        debugPrintStack(stackTrace: stackTrace);
+      },
+    );
   }
 
   /// Connect to a user by username
@@ -269,7 +265,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             debugPrint('Found existing chat ID: $chatId');
             // Ensure chat is loaded in provider
             final chatConnectionNotifier = ref.read(chatConnectionProvider.notifier);
-            await chatConnectionNotifier.listenToChat(chatId);
+            // Load the chat instead of listening to it directly
+            await chatConnectionNotifier.loadChatById(chatId);
             
             // Wait briefly for animation and chat state to update
             await Future.delayed(const Duration(milliseconds: 1000));

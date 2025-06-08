@@ -475,6 +475,37 @@ class ChatConnectionNotifier extends StateNotifier<ChatConnectionState> {
         );
   }
   
+  /// Load a chat by ID and update state
+  Future<void> loadChatById(String chatId) async {
+    debugPrint('Loading chat by ID: $chatId');
+    
+    try {
+      final dbService = _ref.read(databaseServiceProvider);
+      final chat = await dbService.getChatById(chatId);
+      
+      if (chat != null) {
+        debugPrint('Chat loaded successfully');
+        state = state.copyWith(
+          isConnected: true,
+          currentChat: chat,
+        );
+        
+        // Start listening for updates
+        _listenToChat(chatId);
+      } else {
+        debugPrint('Chat not found with ID: $chatId');
+        state = state.copyWith(
+          error: 'Chat not found',
+        );
+      }
+    } catch (e) {
+      debugPrint('Error loading chat: $e');
+      state = state.copyWith(
+        error: 'Failed to load chat: $e',
+      );
+    }
+  }
+  
   Future<void> disconnectFromChat() async {
     if (state.currentChat == null) return;
     
